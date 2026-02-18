@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordne setninger – Norsk A1</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --subjekt: #FFD54F;
+  --subjekt-border: #F9A825;
+  --verb: #81C784;
+  --verb-border: #388E3C;
+  --sted: #4DB6AC;
+  --sted-border: #00695C;
+  --tid: #4DD0E1;
+  --tid-border: #00838F;
+  --success: #43A047;
+  --error: #E53935;
+  --bg: #FAFAF5;
+  --dropzone-bg: #F5F0E8;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255,213,79,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(100,181,246,0.08) 0%, transparent 50%);
+}
+
+h1 {
+  font-family: 'Fredoka One', cursive;
+  text-align: center;
+  font-size: 2.2rem;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #777;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+/* Rules */
+.rules-panel {
+  background: white;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.rules-panel summary {
+  font-weight: 800;
+  cursor: pointer;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.rules-content {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.7;
+}
+
+.example {
+  background: #F5F5F0;
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin: 6px 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+/* Progress */
+.progress-bar {
+  background: #E0E0E0;
+  border-radius: 10px;
+  height: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, var(--success), #66BB6A);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+/* Exercise card */
+.exercise-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  margin-bottom: 16px;
+}
+
+.exercise-number {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #AAA;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.dropzone {
+  background: var(--dropzone-bg);
+  border: 3px dashed #CCC;
+  border-radius: 14px;
+  min-height: 64px;
+  padding: 14px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  position: relative;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.dropzone.drag-over {
+  border-color: #999;
+  background: #EDE7D9;
+}
+
+.dropzone.empty::after {
+  content: "Dra ordene hit i riktig rekkefølge";
+  color: #BBB;
+  font-size: 0.95rem;
+  font-weight: 600;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.word-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+  min-height: 48px;
+  padding: 10px;
+  background: #FAFAFA;
+  border-radius: 10px;
+}
+
+/* Chips */
+.word-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+  white-space: nowrap;
+}
+
+.word-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.word-chip:active, .word-chip.dragging {
+  cursor: grabbing;
+  transform: scale(1.06);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.chip-subjekt { background: var(--subjekt); border: 2px solid var(--subjekt-border); color: #333; }
+.chip-verb { background: var(--verb); border: 2px solid var(--verb-border); color: #1B5E20; }
+.chip-sted { background: var(--sted); border: 2px solid var(--sted-border); color: #004D40; }
+.chip-tid { background: var(--tid); border: 2px solid var(--tid-border); color: #006064; }
+.chip-tegn { background: #555; border: 2px solid #333; color: white; font-size: 1.4rem !important; min-width: 38px; justify-content: center; padding: 8px 14px; }
+
+.word-chip.correct {
+  animation: correctPulse 0.4s ease;
+  box-shadow: 0 0 0 3px var(--success), 0 3px 10px rgba(67,160,71,0.3);
+}
+
+.word-chip.wrong { animation: wrongShake 0.5s ease; }
+.word-chip.falling { animation: fallDown 0.4s ease-in forwards; }
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+@keyframes fallDown {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(50px); opacity: 0; }
+}
+
+/* Feedback */
+.feedback {
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 14px;
+  transition: all 0.3s;
+}
+
+.feedback.success { background: #E8F5E9; color: var(--success); }
+.feedback.error { background: #FFEBEE; color: var(--error); }
+.feedback.info { background: #E3F2FD; color: #1565C0; }
+
+/* Buttons */
+.buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 10px 26px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-check { background: var(--success); color: white; }
+.btn-clear { background: #EEE; color: #555; }
+.btn-clear:hover { background: #DDD; }
+.btn-next { background: #1565C0; color: white; display: none; }
+
+/* Score screen */
+.score-screen {
+  background: white;
+  border-radius: 16px;
+  padding: 40px 28px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  display: none;
+}
+
+.score-screen h2 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.8rem;
+  color: var(--success);
+  margin-bottom: 10px;
+}
+
+.score-number {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #333;
+}
+
+.score-label {
+  color: #888;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.score-sentences {
+  text-align: left;
+  margin: 20px 0;
+  padding: 16px;
+  background: #F5F5F0;
+  border-radius: 12px;
+}
+
+.score-sentences h3 {
+  font-size: 0.85rem;
+  color: #AAA;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.score-sentence {
+  padding: 4px 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.score-sentence .check-icon { color: var(--success); margin-right: 6px; }
+
+.btn-restart {
+  background: var(--success);
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding: 14px 36px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: transform 0.15s;
+}
+
+.btn-restart:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+@media (max-width: 600px) {
+  h1 { font-size: 1.7rem; }
+  .word-chip { padding: 8px 14px; font-size: 0.95rem; }
+  .exercise-card { padding: 18px; }
+}
+</style>
+</head>
+<body>
+
+<h1>🇳🇴 Ordne setninger!</h1>
+<p class="subtitle">Dra ordene i riktig rekkefølge. Husk: verbet står alltid på plass 2!</p>
+
+<details class="rules-panel">
+  <summary>📖 Regler</summary>
+  <div class="rules-content">
+    Hver setning har 4 deler + punktum. Verbet er alltid på plass 2.
+    <div class="example">🧑 Subjekt → 🏃 Verb → 🗺️📍 Sted → 📅🕐 Tid</div>
+    En adverbial (tid eller sted) kan også stå først. Da bytter subjekt og verb plass:
+    <div class="example">📅🕐 Tid → 🏃 Verb → 🧑 Subjekt → 🗺️📍 Sted</div>
+    To adverbialer kan også stå sammen først:
+    <div class="example">📅🕐 Tid → 🗺️📍 Sted → 🏃 Verb → 🧑 Subjekt</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--subjekt)"></div> 🧑 Subjekt</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--verb)"></div> 🏃 Verb</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--sted)"></div> 🗺️📍 Sted</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--tid)"></div> 📅🕐 Tid</div>
+    </div>
+  </div>
+</details>
+
+<div class="progress-text" id="progressText">Setning 1 av 10</div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+<div id="exerciseArea"></div>
+
+<div class="score-screen" id="scoreScreen">
+  <h2>🎉 Ferdig!</h2>
+  <div class="score-number" id="scoreNumber"></div>
+  <div class="score-label">riktige av 10 setninger</div>
+  <div class="score-sentences" id="scoreSentences">
+    <h3>Dine setninger</h3>
+  </div>
+  <button class="btn-restart" onclick="restart()">🔄 Prøv igjen med nye setninger</button>
+</div>
+
+<script>
+// ===== SENTENCE DATA =====
+const allSentences = [
+  { subjekt: "jeg", verb: "jobber", sted: "på skolen", tid: "hver dag" },
+  { subjekt: "hun", verb: "bor", sted: "i Oslo", tid: "nå" },
+  { subjekt: "vi", verb: "spiser", sted: "hjemme", tid: "om kvelden" },
+  { subjekt: "han", verb: "sover", sted: "i leiligheten", tid: "om natten" },
+  { subjekt: "de", verb: "går", sted: "i parken", tid: "om morgenen" },
+  { subjekt: "barnet", verb: "sover", sted: "hjemme", tid: "om ettermiddagen" },
+  { subjekt: "læreren", verb: "jobber", sted: "på skolen", tid: "om formiddagen" },
+  { subjekt: "mannen", verb: "handler", sted: "på butikken", tid: "om ettermiddagen" },
+  { subjekt: "kvinnen", verb: "trener", sted: "i parken", tid: "om morgenen" },
+  { subjekt: "jeg", verb: "leser", sted: "hjemme", tid: "om kvelden" },
+  { subjekt: "du", verb: "jobber", sted: "på sykehuset", tid: "om natten" },
+  { subjekt: "vi", verb: "går", sted: "i byen", tid: "om kvelden" },
+  { subjekt: "hun", verb: "spiser", sted: "på kafeen", tid: "om formiddagen" },
+  { subjekt: "han", verb: "trener", sted: "i parken", tid: "om morgenen" },
+  { subjekt: "faren min", verb: "jobber", sted: "i byen", tid: "hver dag" },
+  { subjekt: "mora mi", verb: "handler", sted: "på butikken", tid: "om ettermiddagen" },
+  { subjekt: "vennen min", verb: "bor", sted: "i Norge", tid: "nå" },
+  { subjekt: "de", verb: "spiser", sted: "hjemme", tid: "klokken 17" },
+  { subjekt: "jeg", verb: "sover", sted: "i leiligheten", tid: "klokken 23" },
+  { subjekt: "hun", verb: "går", sted: "på skolen", tid: "klokken 8" },
+  { subjekt: "vi", verb: "spiser", sted: "på kafeen", tid: "klokken 12" },
+  { subjekt: "barnet", verb: "sover", sted: "hjemme", tid: "om natten" },
+  { subjekt: "læreren", verb: "leser", sted: "i klasserommet", tid: "om formiddagen" },
+  { subjekt: "mannen", verb: "trener", sted: "ute", tid: "om morgenen" },
+  { subjekt: "du", verb: "spiser", sted: "hjemme", tid: "klokken 6" },
+  { subjekt: "hun", verb: "leser", sted: "på kafeen", tid: "om ettermiddagen" },
+  { subjekt: "vi", verb: "handler", sted: "på butikken", tid: "om morgenen" },
+  { subjekt: "han", verb: "jobber", sted: "på sykehuset", tid: "om natten" },
+  { subjekt: "de", verb: "trener", sted: "ute", tid: "om ettermiddagen" },
+  { subjekt: "jeg", verb: "går", sted: "i parken", tid: "om morgenen" },
+];
+
+const NUM = 10;
+
+// ===== STATE =====
+let currentSentences = [];
+let currentIndex = 0;
+let correctCount = 0;
+let completedSentences = [];
+
+// ===== VALIDATION =====
+function getValidOrders(p) {
+  const s = p.subjekt, v = p.verb, st = p.sted, ti = p.tid;
+  return [
+    [s, v, st, ti],
+    [s, v, ti, st],
+    [ti, v, s, st],
+    [st, v, s, ti],
+    [ti, st, v, s],
+    [st, ti, v, s],
+  ];
+}
+
+function checkOrder(placedWords, parts) {
+  const valid = getValidOrders(parts);
+  for (const v of valid) {
+    if (v.length === placedWords.length && v.every((w, i) => w === placedWords[i])) {
+      return { correct: true };
+    }
+  }
+  
+  const verbWord = parts.verb;
+  const verbIdx = placedWords.indexOf(verbWord);
+  const first = placedWords[0];
+  const second = placedWords[1];
+  const firstAdv = (first === parts.tid || first === parts.sted);
+  const secondAdv = (second === parts.tid || second === parts.sted);
+  
+  if (firstAdv && secondAdv) {
+    if (verbIdx !== 2) return { correct: false, message: "❌ Når to adverbialer står først, må verbet komme rett etter dem." };
+    if (placedWords[3] !== parts.subjekt) return { correct: false, message: "❌ Subjektet må stå etter verbet (inversjon)." };
+  } else {
+    if (verbIdx !== 1) return { correct: false, message: "❌ Verbet må stå på plass 2!" };
+    if (first !== parts.subjekt && !firstAdv) return { correct: false, message: `❌ «${first}» kan ikke stå først her.` };
+    if (firstAdv && placedWords[2] !== parts.subjekt) return { correct: false, message: "❌ Når en adverbial står først, må subjektet komme rett etter verbet (inversjon)." };
+  }
+  
+  return { correct: false, message: "❌ Rekkefølgen er ikke helt riktig. Prøv igjen!" };
+}
+
+// ===== HELPERS =====
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function capitalizeFirst(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+// ===== BUILD SINGLE EXERCISE =====
+function showExercise() {
+  const area = document.getElementById("exerciseArea");
+  const parts = currentSentences[currentIndex];
+  
+  const chipData = [
+    { word: parts.subjekt, cat: "subjekt", cls: "chip-subjekt" },
+    { word: parts.verb, cat: "verb", cls: "chip-verb" },
+    { word: parts.sted, cat: "sted", cls: "chip-sted" },
+    { word: parts.tid, cat: "tid", cls: "chip-tid" },
+    { word: ".", cat: "tegn", cls: "chip-tegn" },
+  ];
+  
+  const shuffled = [...shuffle(chipData.slice(0, 4)), chipData[4]];
+  
+  area.innerHTML = `
+    <div class="exercise-card" id="card">
+      <div class="exercise-number">Setning ${currentIndex + 1} av ${NUM}</div>
+      <div class="dropzone empty" id="dropzone"></div>
+      <div class="word-bank" id="bank"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="buttons">
+        <button class="btn btn-check" id="btnCheck" onclick="check()">✓ Sjekk</button>
+        <button class="btn btn-clear" id="btnClear" onclick="clear_()">✕ Tøm</button>
+        <button class="btn btn-next" id="btnNext" onclick="next()">Neste →</button>
+      </div>
+    </div>
+  `;
+  
+  const bank = document.getElementById("bank");
+  shuffled.forEach(cd => {
+    const chip = document.createElement("div");
+    chip.className = `word-chip ${cd.cls}`;
+    chip.textContent = cd.word;
+    chip.draggable = true;
+    chip.dataset.word = cd.word;
+    chip.dataset.category = cd.cat;
+    
+    chip.addEventListener("dragstart", onDragStart);
+    chip.addEventListener("dragend", onDragEnd);
+    chip.addEventListener("touchstart", onTouchStart, { passive: false });
+    chip.addEventListener("touchmove", onTouchMove, { passive: false });
+    chip.addEventListener("touchend", onTouchEnd, { passive: false });
+    chip.addEventListener("click", () => onChipClick(chip));
+    
+    bank.appendChild(chip);
+  });
+  
+  updateProgress();
+}
+
+// ===== CLICK =====
+function onChipClick(chip) {
+  if (chip._wasDragged) { chip._wasDragged = false; return; }
+  const dz = document.getElementById("dropzone");
+  const bank = document.getElementById("bank");
+  
+  if (chip.parentElement === dz) {
+    chip.textContent = chip.dataset.word;
+    bank.appendChild(chip);
+  } else {
+    dz.appendChild(chip);
+  }
+  updateDZ();
+  clearFB();
+}
+
+// ===== DRAG =====
+let draggedChip = null;
+
+function onDragStart(e) {
+  draggedChip = e.target;
+  e.target.classList.add("dragging");
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", "");
+}
+
+function onDragEnd(e) {
+  e.target.classList.remove("dragging");
+  draggedChip = null;
+}
+
+document.addEventListener("dragover", e => {
+  const dz = e.target.closest(".dropzone");
+  const bank = e.target.closest(".word-bank");
+  if (dz || bank) e.preventDefault();
+  if (dz) {
+    dz.classList.add("drag-over");
+    if (draggedChip && draggedChip.parentElement === dz) {
+      const chips = [...dz.querySelectorAll(".word-chip:not(.dragging)")];
+      const after = getDragAfter(chips, e.clientX);
+      if (after) dz.insertBefore(draggedChip, after);
+      else dz.appendChild(draggedChip);
+    }
+  }
+});
+
+document.addEventListener("dragleave", e => {
+  const dz = e.target.closest(".dropzone");
+  if (dz) dz.classList.remove("drag-over");
+});
+
+document.addEventListener("drop", e => {
+  e.preventDefault();
+  const dz = e.target.closest(".dropzone");
+  const bank = e.target.closest(".word-bank");
+  if (dz) dz.classList.remove("drag-over");
+  if (!draggedChip) return;
+  
+  if (dz) {
+    dz.appendChild(draggedChip);
+    draggedChip._wasDragged = true;
+  } else if (bank) {
+    draggedChip.textContent = draggedChip.dataset.word;
+    bank.appendChild(draggedChip);
+    draggedChip._wasDragged = true;
+  }
+  draggedChip.classList.remove("dragging");
+  updateDZ();
+  clearFB();
+});
+
+function getDragAfter(chips, x) {
+  let closest = null, closestOff = Infinity;
+  chips.forEach(c => {
+    const box = c.getBoundingClientRect();
+    const off = x - box.left - box.width / 2;
+    if (off < 0 && -off < closestOff) { closestOff = -off; closest = c; }
+  });
+  return closest;
+}
+
+// ===== TOUCH =====
+let touchChip = null, touchClone = null, touchSX, touchSY, hasMoved = false;
+
+function onTouchStart(e) {
+  const c = e.target.closest('.word-chip');
+  if (!c) return;
+  touchChip = c; hasMoved = false;
+  touchSX = e.touches[0].clientX; touchSY = e.touches[0].clientY;
+}
+
+function onTouchMove(e) {
+  if (!touchChip) return;
+  e.preventDefault();
+  const t = e.touches[0];
+  if (!hasMoved && Math.abs(t.clientX-touchSX)<10 && Math.abs(t.clientY-touchSY)<10) return;
+  hasMoved = true;
+  if (!touchClone) {
+    touchClone = touchChip.cloneNode(true);
+    touchClone.style.cssText = "position:fixed;z-index:9999;pointer-events:none;opacity:0.85;transform:scale(1.1);box-shadow:0 8px 24px rgba(0,0,0,0.25)";
+    document.body.appendChild(touchClone);
+    touchChip.style.opacity = "0.3";
+  }
+  touchClone.style.left = (t.clientX - touchClone.offsetWidth/2) + "px";
+  touchClone.style.top = (t.clientY - touchClone.offsetHeight/2) + "px";
+}
+
+function onTouchEnd(e) {
+  if (!touchChip) return;
+  if (touchClone) { document.body.removeChild(touchClone); touchClone = null; }
+  touchChip.style.opacity = "";
+  if (!hasMoved) { touchChip = null; return; }
+  
+  const t = e.changedTouches[0];
+  const dz = document.getElementById("dropzone");
+  const bank = document.getElementById("bank");
+  const dzR = dz.getBoundingClientRect();
+  const bR = bank.getBoundingClientRect();
+  
+  if (t.clientX>=dzR.left && t.clientX<=dzR.right && t.clientY>=dzR.top && t.clientY<=dzR.bottom) {
+    dz.appendChild(touchChip); touchChip._wasDragged = true;
+  } else if (t.clientX>=bR.left && t.clientX<=bR.right && t.clientY>=bR.top && t.clientY<=bR.bottom) {
+    touchChip.textContent = touchChip.dataset.word;
+    bank.appendChild(touchChip); touchChip._wasDragged = true;
+  } else if (touchChip.parentElement === dz) {
+    touchChip.textContent = touchChip.dataset.word;
+    bank.appendChild(touchChip); touchChip._wasDragged = true;
+  }
+  updateDZ(); clearFB(); touchChip = null;
+}
+
+// ===== DZ helpers =====
+function updateDZ() {
+  const dz = document.getElementById("dropzone");
+  if (!dz) return;
+  const chips = [...dz.querySelectorAll(".word-chip")];
+  dz.classList.toggle("empty", chips.length === 0);
+  // Capitalize first word
+  chips.forEach(c => { c.textContent = c.dataset.word; });
+  if (chips.length > 0 && chips[0].dataset.category !== "tegn") {
+    chips[0].textContent = capitalizeFirst(chips[0].dataset.word);
+  }
+}
+
+function clearFB() {
+  const fb = document.getElementById("feedback");
+  if (fb) { fb.textContent = ""; fb.className = "feedback"; }
+  const dz = document.getElementById("dropzone");
+  if (dz) dz.querySelectorAll(".word-chip").forEach(c => c.classList.remove("correct","wrong"));
+}
+
+function clear_() {
+  const dz = document.getElementById("dropzone");
+  const bank = document.getElementById("bank");
+  [...dz.querySelectorAll(".word-chip")].forEach(c => {
+    c.classList.remove("correct","wrong");
+    c.textContent = c.dataset.word;
+    bank.appendChild(c);
+  });
+  updateDZ(); clearFB();
+}
+
+// ===== CHECK =====
+function check() {
+  const dz = document.getElementById("dropzone");
+  const fb = document.getElementById("feedback");
+  const chips = [...dz.querySelectorAll(".word-chip")];
+  
+  if (chips.length < 5) {
+    fb.textContent = "Dra alle ordene + punktum til setningsfeltet.";
+    fb.className = "feedback info";
+    return;
+  }
+  
+  if (chips[chips.length-1].dataset.category !== "tegn") {
+    fb.textContent = "❌ Punktum må stå til slutt!";
+    fb.className = "feedback error";
+    chips.forEach(c => c.classList.add("wrong"));
+    setTimeout(() => chips.forEach(c => c.classList.remove("wrong")), 600);
+    return;
+  }
+  
+  const contentWords = chips.slice(0,-1).map(c => c.dataset.word);
+  const parts = currentSentences[currentIndex];
+  const result = checkOrder(contentWords, parts);
+  
+  if (result.correct) {
+    fb.textContent = "✅ Riktig! Bra jobba! 🎉";
+    fb.className = "feedback success";
+    chips.forEach(c => c.classList.add("correct"));
+    correctCount++;
+    
+    // Build display sentence
+    const displayWords = [...contentWords];
+    displayWords[0] = capitalizeFirst(displayWords[0]);
+    completedSentences.push(displayWords.join(" ") + ".");
+    
+    // Show next button, hide check/clear
+    document.getElementById("btnCheck").style.display = "none";
+    document.getElementById("btnClear").style.display = "none";
+    document.getElementById("btnNext").style.display = "inline-block";
+    
+    // Disable dragging
+    chips.forEach(c => {
+      c.draggable = false;
+      c.style.cursor = "default";
+      c.replaceWith(c.cloneNode(true)); // Remove all event listeners
+    });
+  } else {
+    fb.textContent = result.message;
+    fb.className = "feedback error";
+    chips.forEach(c => c.classList.add("wrong"));
+    setTimeout(() => chips.forEach(c => c.classList.remove("wrong")), 600);
+  }
+}
+
+// ===== NEXT =====
+function next() {
+  currentIndex++;
+  if (currentIndex >= NUM) {
+    showScore();
+  } else {
+    showExercise();
+  }
+}
+
+// ===== PROGRESS =====
+function updateProgress() {
+  document.getElementById("progressText").textContent = `Setning ${currentIndex + 1} av ${NUM}`;
+  document.getElementById("progressFill").style.width = `${(currentIndex / NUM) * 100}%`;
+}
+
+// ===== SCORE =====
+function showScore() {
+  document.getElementById("exerciseArea").innerHTML = "";
+  document.getElementById("progressFill").style.width = "100%";
+  document.getElementById("progressText").textContent = `${NUM} av ${NUM} fullført`;
+  
+  const screen = document.getElementById("scoreScreen");
+  screen.style.display = "block";
+  document.getElementById("scoreNumber").textContent = `${correctCount} / ${NUM}`;
+  
+  const container = document.getElementById("scoreSentences");
+  container.innerHTML = "<h3>Dine riktige setninger</h3>";
+  completedSentences.forEach(s => {
+    const div = document.createElement("div");
+    div.className = "score-sentence";
+    div.innerHTML = `<span class="check-icon">✓</span> ${s}`;
+    container.appendChild(div);
+  });
+  
+  screen.scrollIntoView({ behavior: "smooth" });
+}
+
+// ===== RESTART =====
+function restart() {
+  currentIndex = 0;
+  correctCount = 0;
+  completedSentences = [];
+  document.getElementById("scoreScreen").style.display = "none";
+  
+  const shuffled = shuffle(allSentences);
+  currentSentences = shuffled.slice(0, NUM);
+  
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  setTimeout(showExercise, 300);
+}
+
+// ===== INIT =====
+const shuffled = shuffle(allSentences);
+currentSentences = shuffled.slice(0, NUM);
+showExercise();
+</script>
+
+</body>
+</html>
